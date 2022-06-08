@@ -28,7 +28,14 @@ class MakeGraph():
         plt.show()
 
     def clear_graph(self):
+        '''
+        current figure reset
+        '''
         plt.clf()
 
     def save_graph(self, path):
+        '''
+        save figure at path
+        :param path: path for save
+        '''
         plt.savefig(path)

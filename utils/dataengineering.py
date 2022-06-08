@@ -15,3 +15,17 @@ class DataEngineering():
             if self.dataframe[i].dtype == 'object':
                 self.dataframe[i] = le.fit_transform(self.dataframe[i])
         return self.dataframe
+
+    def check_missing_value(self):
+        '''
+        check the missing value in the dataframe and print the missing value number
+        '''
+        missing_num_cnt = self.dataframe.isnull().sum()
+        print("missing number's count :", sum(missing_num_cnt))
+
+    def fill_missing_value(self, method):
+        '''
+        using method for fill missing value
+        :return:
+        '''
+        self.dataframe = self.dataframe.fillna(method=method)
