@@ -11,10 +11,10 @@ RMSLE를 사용하는 이유는 목적변수 집값의 범위가 넓기 때문�
 - 데이터 내에 Object가 53%로 가장 많은 것을 알 수 있다. 그래서 적절한 Encoding 기법을 선택하는 것이 중요
 
 # environment
-pandas 1.1.5
-matplotlib 3.3.4
-scikit-learn 0.24.2
-numpy 1.19.5
+- pandas 1.1.5
+- matplotlib 3.3.4
+- scikit-learn 0.24.2
+- numpy 1.19.5
 
 # 사용 방법
-python run.py
+- python run.py
