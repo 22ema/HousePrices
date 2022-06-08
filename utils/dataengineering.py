@@ -29,3 +29,11 @@ class DataEngineering():
         :return:
         '''
         self.dataframe = self.dataframe.fillna(method=method)
+
+    def corr_coef(self):
+        '''
+        make a correlation coefficient matrix
+        :return: corr matrix
+        '''
+        corr = self.dataframe.corr()
+        return corr

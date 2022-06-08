@@ -1,3 +1,5 @@
+import csv
+import numpy as np
 import pandas as pd
 import os
 from utils.dataengineering import DataEngineering
@@ -27,6 +29,14 @@ def make_bivariate_graph(MG, df, y_axis):
         MG.bivariate_graph(df_index, y_axis, 4, count)
         count += 1
 
+def corr_csv(corr, path):
+    corr_column = corr.columns
+    corr_value = np.array(corr)
+    with open(path, 'w', newline='') as file:
+        mywriter = csv.writer(file, delimiter=',')
+        mywriter.writerow(corr_column)
+        for i in corr_value:
+            mywriter.writerow(i)
 
 
 if __name__ == "__main__":
@@ -38,3 +48,5 @@ if __name__ == "__main__":
     DE.fill_missing_value('ffill')
     MG = MakeGraph(House_data)
     make_bivariate_graph(MG, House_data, 'SalePrice')
+    corr = DE.corr_coef()
+    corr_csv(corr, 'csv/corr_data.csv')
