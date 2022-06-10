@@ -4,6 +4,7 @@ import pandas as pd
 import os
 from utils.dataengineering import DataEngineering
 from utils.make_graph import MakeGraph
+from model.Multi_Regression import MultiRegression
 
 def make_bivariate_graph(MG, df, y_axis):
     '''
@@ -38,8 +39,20 @@ def corr_csv(corr, path):
         for i in corr_value:
             mywriter.writerow(i)
 
+def make_result_csv(index, preds):
+    result = [[0] * 2 for _ in range(0, len(index))]
+    idx = ['Id', 'SalePrice']
+    for i in range(0, len(index)):
+        result[i][0] = index[i]
+        result[i][1] = preds[i]
+    df = pd.DataFrame(result, columns=idx)
+    df.to_csv('./csv/result.csv', index=False)
+
+
+
 
 if __name__ == "__main__":
+    # make train dataset for Multi Regression(ML)
     train_path = "dataset/train.csv"
     House_data = pd.read_csv(train_path)
     DE = DataEngineering(House_data)
@@ -49,4 +62,25 @@ if __name__ == "__main__":
     MG = MakeGraph(House_data)
     make_bivariate_graph(MG, House_data, 'SalePrice')
     corr = DE.corr_coef()
-    corr_csv(corr, 'csv/corr_data.csv')
+    if 'corr_data.csv' in os.listdir('./csv'):
+        pass
+    else:
+        corr_csv(corr, 'csv/corr_data.csv')
+    train_x = np.asarray(DE.dataframe[House_data.columns[1:-1]])
+    train_y = np.asarray(DE.dataframe[House_data.columns[-1]])
+
+    # make test dataset
+    test_path = "dataset/test.csv"
+    tHouse_data = pd.read_csv(test_path)
+    tDE = DataEngineering(tHouse_data)
+    tHouse_data = tDE.label_encoder()
+    tDE.check_missing_value()
+    tDE.fill_missing_value('ffill')
+    index = np.asarray(tDE.dataframe[tHouse_data.columns[0]])
+    test_x = np.asarray(tDE.dataframe[tHouse_data.columns[1:]])
+
+    # Multi Regression
+    mregr = MultiRegression(train_x, train_y)
+    mregr.fit_reg()
+    preds = mregr.prediction(test_x)
+    make_result_csv(index, preds)
