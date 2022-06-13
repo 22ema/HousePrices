@@ -13,6 +13,7 @@ class MultiRegression():
 
     def prediction(self, test_x):
         pred = self.regr.predict(test_x)
+        pred = np.floor(np.expm1(pred))
         return pred
 
     def matrix_print(self, test_y, test_x, pred):

@@ -1,10 +1,17 @@
+from sklearn.preprocessing import StandardScaler
+
 import csv
 import numpy as np
 import pandas as pd
 import os
+import seaborn as sns
 from utils.dataengineering import DataEngineering
 from utils.make_graph import MakeGraph
 from model.Multi_Regression import MultiRegression
+from model.XGBModel import XGBModel
+import matplotlib.pyplot as plt
+from scipy.stats import norm, skew
+
 
 def make_bivariate_graph(MG, df, y_axis):
     '''
@@ -55,6 +62,12 @@ if __name__ == "__main__":
     # make train dataset for Multi Regression(ML)
     train_path = "dataset/train.csv"
     House_data = pd.read_csv(train_path)
+    print(House_data['SalePrice'].describe())
+    print("Skewness : %f" % House_data['SalePrice'].skew())
+    print("Kurtosis : %f "% House_data['SalePrice'].kurt())
+    House_data['SalePrice'] = np.log1p(House_data['SalePrice'])
+
+
     DE = DataEngineering(House_data)
     House_data = DE.label_encoder()
     DE.check_missing_value()
@@ -62,11 +75,16 @@ if __name__ == "__main__":
     MG = MakeGraph(House_data)
     make_bivariate_graph(MG, House_data, 'SalePrice')
     corr = DE.corr_coef()
+    highest_corr_feature = corr.index[abs(corr['SalePrice'])>0.5]
+
     if 'corr_data.csv' in os.listdir('./csv'):
         pass
     else:
         corr_csv(corr, 'csv/corr_data.csv')
-    train_x = np.asarray(DE.dataframe[House_data.columns[1:-1]])
+
+    Scaler = StandardScaler()
+    # train_x = Scaler.fit_transform(np.asarray(DE.dataframe[highest_corr_feature[:-1]]))
+    train_x = np.asarray(DE.dataframe[highest_corr_feature[:-1]])
     train_y = np.asarray(DE.dataframe[House_data.columns[-1]])
 
     # make test dataset
@@ -77,10 +95,11 @@ if __name__ == "__main__":
     tDE.check_missing_value()
     tDE.fill_missing_value('ffill')
     index = np.asarray(tDE.dataframe[tHouse_data.columns[0]])
-    test_x = np.asarray(tDE.dataframe[tHouse_data.columns[1:]])
+    test_x = Scaler.fit_transform(np.asarray(tDE.dataframe[highest_corr_feature[:-1]]))
+    test_x = np.asarray(tDE.dataframe[highest_corr_feature[:-1]])
 
     # Multi Regression
-    mregr = MultiRegression(train_x, train_y)
+    mregr = XGBModel(train_x, train_y)
     mregr.fit_reg()
     preds = mregr.prediction(test_x)
     make_result_csv(index, preds)
